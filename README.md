@@ -25,7 +25,7 @@ Things that I know aren't in the library yet:
 
 ##Use
 
-Add this to your gemfile: `gem 'bootstraps_bootstraps', git: 'git@github.com:robacarp/bootstraps_bootstraps.git'`
+Add it to your gemfile: `gem 'bootstraps_bootstraps'`
 
 To use the Bootstrap 2 form helper in your views:
 
