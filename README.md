@@ -9,3 +9,12 @@ To get the best experience out of both worlds Rails needs a bit of bootstrapping
 ##Development Strategy
 
 More or less I'm writing this library as needed.  Each time I find myself trying to do something with form_for or interact between Rails and Bootstrap I find a way to make them play nice together without losing baseline Rails functionality.
+
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+6. :-)
