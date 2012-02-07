@@ -12,6 +12,8 @@ An extended form_for called `bootstrap_form` with all the classic functionality 
 
 ##Development Strategy
 
+This isn't compatible with Bootstrap versions < 2.
+
 More or less I'm writing this library as needed.  Each time I find myself trying to do something with form_for or interact between Rails and Bootstrap I find a way to make them play nice together without losing baseline Rails functionality.
 
 Things that I know aren't in the library yet:
@@ -19,13 +21,13 @@ Things that I know aren't in the library yet:
  - Collection methods (select box, check boxes, radio buttons)
  - Check boxes in general
  - Full implementation of an optional attribute to make bootstrapped_form silence and revert to the default for a specific form field
- - .form-vertical, .form-search, and .form-inline specific html syntax
+ - `.form-vertical`, `.form-search`, and `.form-inline` specific html syntax
 
 ##Use
 
 Add this to your gemfile: `gem 'bootstraps_bootstraps', git: 'git@github.com:robacarp/bootstraps_bootstraps.git'`
 
-To use the bootstrap form helper in your views:
+To use the Bootstrap 2 form helper in your views:
 
 ```ruby
 = bootstrapped_form @user do |f|
