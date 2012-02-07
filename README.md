@@ -31,12 +31,16 @@ To use the Bootstrap 2 form helper in your views:
 
 ```ruby
 = bootstrapped_form @user do |f|
+  # Labels are added automatically
   = f.text_field :first_name
   = f.text_field :last_name
+
+  # Override the label text with :label in the options hash
   = f.collection_select :occupations, Occupation.all, :id, :name, :label => 'Job'
   = f.text_field :address,  :label => "Address Line 1"
   = f.text_field :address2,  :label => "Line 2"
-  = f.submit ("Shipping Options &rarr;").html_safe, :class=>'fright'
+
+  = f.submit
 ```
 
 ## Contributing
