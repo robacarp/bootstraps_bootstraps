@@ -2,9 +2,10 @@ module ActionView
   module Helpers
     module FormHelper
 
-      def encapsulate_builder object_name, object = nil, builder_class = ActionView::Helpers::FormBuilder, options = {}, &block
+      def wrapped_inputs object_name, object = nil, options = {}, wrapper, &block
         builder = instantiate_builder(object_name, object, options, &block)
-        capture(builder, &block)
+        fields = capture(builder, &block)
+        wrapper.call(fields)
       end
 
     end
@@ -37,10 +38,6 @@ module BootstrapsBootstraps
 
     %w[text_field text_area password_field number_field telephone_field url_field email_field range_field collection_select].each do |method_name|
       define_method(method_name) do |name, *args|
-        if name == 'text_field'
-          debugger
-        end
-
         options = args.extract_options!
 
         #abort and just let the rails formbuilder do its thing
@@ -53,20 +50,27 @@ module BootstrapsBootstraps
 
         help_text =  options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
 
-        #false to disable the label
         label = options[:label] == false ? ''.html_safe : field_label(name, options)
 
-        if options[:large] || method_name == 'text_area'
-          options[:class] = [options[:class]] || []
-          options[:class].push 'xxlarge'
+        options[:class] = [options[:class]] unless options[:class].kind_of?(Array)
+        options[:class].push 'xxlarge' if options[:large] || method_name == 'text_area'
+        options[:class].push 'inline' if @form_mode == :inline
+
+        args.push(options).unshift(name)
+
+        field = super(*args) + ' ' + error_msg
+
+        #wrap it in a controls-block
+        if @form_mode == :horizontal
+          #wrap it in div.controls
+          field = div_with_class(['controls',errors], :content => field)
+          #tack on the label
+          field = label + field
+          #wrap it in div.control-group
+          field = div_with_class(['control-group',errors], :content => field)
         end
 
-        div_with_class ['control-group',errors] do
-          label + div_with_class(['controls',errors]) do
-            args.push(options).unshift(name)
-            super( *args ) + ' ' + error_msg
-          end + help_text
-        end
+        field
       end
     end
 
@@ -103,7 +107,12 @@ module BootstrapsBootstraps
 
     def inline_inputs field_options = {}, &block
       field_options[:inline] = true
-      @template.encapsulate_builder(@object_name, @object, self.class, @options.merge(field_options), &block)
+      wrapper = lambda { |content|
+        field_group = div_with_class('controls', content: content)
+        field_group = label( field_options[:label], field_options[:label], class: 'control-label' ) + field_group
+        field_group = div_with_class('control-group', content: field_group)
+      }
+      @template.wrapped_inputs(@object_name, @object, @options.merge(field_options), wrapper, &block)
     end
 
   private
