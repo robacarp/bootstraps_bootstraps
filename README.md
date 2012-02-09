@@ -6,6 +6,8 @@
 
 To get the best experience out of both worlds Rails needs a bit of bootstrapping to get a form builder that plays nice with Bootstrap.  This gem provides the bootstraps that Bootstrap needs to make Rails+Bootstrap a potent combination.
 
+Development of this gem more or less follows [Bootstrap-sass](https://github.com/thomas-mcdonald/bootstrap-sass).  As such the version number of this project correspond to the Twitter Bootstrap version numbers for both the Major and Minor.  The Patch number will track independently.
+
 ##Current Features
 
 An extended form_for called `bootstrap_form` with all the classic functionality yet extended to provide correct Bootstrap 2 syntax for horizontal forms (classed with .form_horizontal) for most elements.
@@ -19,9 +21,6 @@ More or less I'm writing this library as needed.  Each time I find myself trying
 Things that I know aren't in the library yet:
 
  - Collection methods (select box, check boxes, radio buttons)
- - Check boxes in general
- - Full implementation of an optional attribute to make bootstrapped_form silence and revert to the default for a specific form field
- - `.form-vertical`, `.form-search`, and `.form-inline` specific html syntax
 
 ##Use
 
@@ -30,7 +29,9 @@ Add it to your gemfile: `gem 'bootstraps_bootstraps'`
 To use the Bootstrap 2 form helper in your views:
 
 ```ruby
-= bootstrapped_form @user do |f|
+
+# set the form class as you would for the Bootstrap library.  Bootstraps_bootstraps will use that to determine the html elements required.
+= bootstrapped_form @user, html: {class: 'form-horizontal'} do |f|
   # Labels are added automatically
   = f.text_field :first_name
   = f.text_field :last_name
@@ -39,6 +40,12 @@ To use the Bootstrap 2 form helper in your views:
   = f.collection_select :occupations, Occupation.all, :id, :name, :label => 'Job'
   = f.text_field :address,  :label => "Address Line 1"
   = f.text_field :address2,  :label => "Line 2"
+
+  #make an inline field group inside of the horizontal form
+  = f.inline_inputs label: 'Expiration Date' do |inline|
+    = inline.collection_select :month, (1..12), :to_s, :to_s
+    \-
+    = inline.collection_select :year, (Time.now.year...Time.now.year + 10), :to_s, :to_s
 
   = f.submit
 ```
