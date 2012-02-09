@@ -50,7 +50,7 @@ module BootstrapsBootstraps
 
         help_text =  options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
 
-        label = options[:label] == false ? ''.html_safe : field_label(name, options)
+        label = options[:label] == false ? ''.html_safe : field_label(name, options.except(:class))
 
         options[:class] = [options[:class]] unless options[:class].kind_of?(Array)
         options[:class].push 'xxlarge' if options[:large] || method_name == 'text_area'
@@ -75,18 +75,28 @@ module BootstrapsBootstraps
 
     #TODO update for bootstrap 2
     def check_box(name, *args)
-      content_tag :div, class:"clearfix" do
-        content_tag(:div, class:"input") do
-          content_tag(:ul, class:"inputs-list") do
-            content_tag(:li) do
-              content_tag(:label) do
-                super(name, *args) + content_tag(:span) do
-                  field_label(name, *args)
-                end
-              end
-            end
-          end
+      if options[:vanilla]
+        return super *args
+      end
+
+      options = args.extract_options!
+      if options.has_key? :class
+        unless options[:class].kind_of? Array
+          options[:class] = [options[:class]]
         end
+      else
+        options[:class] = []
+      end
+
+      options[:class].push :checkbox
+
+      text = options[:label] || ''
+      options.delete :label
+
+      args = args.push options
+
+      field_label(name, *args) do
+        super(name, *args) + text
       end
     end
 
@@ -101,7 +111,6 @@ module BootstrapsBootstraps
           super *args
         end
       end
-
     end
 
     def inline_inputs field_options = {}, &block
@@ -116,10 +125,15 @@ module BootstrapsBootstraps
 
   private
 
-    def field_label(name, *args)
+    def field_label(name, *args, &block)
       options = args.extract_options!
+      clss = options[:class] || []
+
       required = object.class.validators_on(name).any? { |v| v.kind_of? ActiveModel::Validations::PresenceValidator}
-      label(name, options[:label], class: ("required" if required))
+      clss.push 'required' if required
+
+
+      label(name, options[:label], class: clss, &block)
     end
 
     def objectify_options(options)
