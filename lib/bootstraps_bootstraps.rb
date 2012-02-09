@@ -1,7 +1,7 @@
 require 'version.rb'
 
 module BootstrapsBootstraps
-  require 'bootstraps_bootstraps/bootstrap_form_builder.rb'
-  require 'bootstraps_bootstraps/bootstrap_form_helper.rb'
-  require 'bootstraps_bootstraps/railtie'
+  load 'bootstraps_bootstraps/bootstrap_form_builder.rb'
+  load 'bootstraps_bootstraps/bootstrap_form_helper.rb'
+  load 'bootstraps_bootstraps/railtie.rb'
 end
