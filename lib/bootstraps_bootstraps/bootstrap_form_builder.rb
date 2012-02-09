@@ -60,15 +60,14 @@ module BootstrapsBootstraps
 
         field = super(*args) + ' ' + error_msg
 
-        #wrap it in a controls-block
-        if @form_mode == :horizontal
-          #wrap it in div.controls
-          field = div_with_class(['controls',errors], :content => field)
-          #tack on the label
-          field = label + field
-          #wrap it in div.control-group
-          field = div_with_class(['control-group',errors], :content => field)
-        end
+        #wrap it in div.controls
+        field = div_with_class(['controls',errors], :content => field) if @form_mode == :horizontal
+
+        #tack on the label
+        field = label + field unless @form_mode == :inline
+
+        #wrap it in div.control-group
+        field = div_with_class(['control-group',errors], :content => field) if @form_mode == :horizontal
 
         field
       end
