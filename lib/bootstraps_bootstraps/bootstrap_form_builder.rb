@@ -36,7 +36,7 @@ module BootstrapsBootstraps
       @form_mode = :inline     if options[:inline]     || detect_html_class(options, 'form-inline')
     end
 
-    %w[text_field text_area password_field number_field telephone_field url_field email_field range_field collection_select].each do |method_name|
+    %w[text_field text_area password_field number_field telephone_field url_field email_field range_field collection_select file_field].each do |method_name|
       define_method(method_name) do |name, *args|
         options = args.extract_options!
 
@@ -89,6 +89,7 @@ module BootstrapsBootstraps
       end
 
       options[:class].push :checkbox
+      options[:class].push 'inline' if @form_mode == :inline
 
       text = options[:label] || ''
       options.delete :label
@@ -121,6 +122,18 @@ module BootstrapsBootstraps
         field_group = div_with_class('control-group', content: field_group)
       }
       @template.wrapped_inputs(@object_name, @object, @options.merge(field_options), wrapper, &block)
+    end
+
+    def grouped_inputs field_options = {}, &block
+      wrapper = lambda do |content|
+        field_group = div_with_class('controls', content:content)
+        if field_options[:label]
+          field_group = label( field_options[:label], field_options[:label], class: 'control-label') + field_group
+        end
+        field_group = div_with_class('control-group', content:field_group)
+      end
+
+      @template.wrapped_inputs(@object_name, @object, @options, wrapper, &block)
     end
 
   private
