@@ -87,6 +87,18 @@ module BootstrapsBootstraps
       end
     end
 
+    def radio_button method, value, options
+      guarantee_html_class options, 'radio'
+      error_class, error_message = render_errors method
+
+      text = options[:label] || ''
+      options.delete :label
+
+      content_tag(:label, class: options[:class]) do
+        super(method,value,options) + text
+      end
+    end
+
     def date_select method, options = {}, html_options = {}
       field = super
 
