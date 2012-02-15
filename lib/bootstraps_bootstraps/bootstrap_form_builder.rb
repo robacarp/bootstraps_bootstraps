@@ -106,8 +106,8 @@ module BootstrapsBootstraps
       return field if options[:vanilla]
 
       #TODO extract this code into a method. For now: lazy.
-      errors = object.errors[:date_select].any? ? 'error' : ''
-      error_msg = object.errors[:date_select].any? ? content_tag(:span, object.errors[:date_select].join(","), class: 'help-inline') : ''
+      errors = object.errors[method].any? ? 'error' : ''
+      error_msg = object.errors[method].any? ? content_tag(:span, object.errors[method].join(","), class: 'help-inline') : ''
 
       help_text =  options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
 
@@ -116,7 +116,7 @@ module BootstrapsBootstraps
       html_options[:class] = [html_options[:class]] unless html_options[:class].kind_of?(Array)
       html_options[:class].push 'inline'
 
-      field += ' ' + error_msg
+      field += ' '.html_safe + error_msg
       field = div_with_class(['controls',errors], :content => field) if @form_mode == :horizontal
       field = label + field
       field = div_with_class(['control-group',errors], :content => field) if @form_mode == :horizontal
