@@ -73,7 +73,6 @@ module BootstrapsBootstraps
       end
     end
 
-    #TODO update for bootstrap 2
     def check_box(name, *args)
       if options[:vanilla]
         return super *args
@@ -99,6 +98,29 @@ module BootstrapsBootstraps
       field_label(name, *args) do
         super(name, *args) + text
       end
+    end
+
+    def date_select method, options = {}, html_options = {}
+      field = super(method, options, html_options)
+
+      return field if options[:vanilla]
+
+      #TODO extract this code into a method. For now: lazy.
+      errors = object.errors[:date_select].any? ? 'error' : ''
+      error_msg = object.errors[:date_select].any? ? content_tag(:span, object.errors[:date_select].join(","), class: 'help-inline') : ''
+
+      help_text =  options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
+
+      label = options[:label] == false ? ''.html_safe : field_label(method, options.except(:class))
+
+      html_options[:class] = [html_options[:class]] unless html_options[:class].kind_of?(Array)
+      html_options[:class].push 'inline'
+
+      field += ' ' + error_msg
+      field = div_with_class(['controls',errors], :content => field) if @form_mode == :horizontal
+      field = label + field
+      field = div_with_class(['control-group',errors], :content => field) if @form_mode == :horizontal
+      field
     end
 
     def submit *args
