@@ -45,15 +45,13 @@ module BootstrapsBootstraps
           return super(name, *(args.push(options)))
         end
 
-        errors = object.errors[name].any? ? 'error' : ''
-        error_msg = object.errors[name].any? ? content_tag(:span, object.errors[name].join(","), class: 'help-inline') : ''
+        errors, error_msg = render_errors name
 
-        help_text =  options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
 
         label = options[:label] == false ? ''.html_safe : field_label(name, options.except(:class))
 
-        options[:class] = [options[:class]] unless options[:class].kind_of?(Array)
-        options[:class].push 'xxlarge' if options[:large] || method_name == 'text_area'
+        guarantee_html_class options
+        options[:class].push 'input-xlarge' if options[:large] || method_name == 'text_area'
         options[:class].push 'inline' if @form_mode == :inline
 
         args.push(options).unshift(name)
@@ -73,48 +71,35 @@ module BootstrapsBootstraps
       end
     end
 
-    def check_box(name, *args)
+    def check_box method, options = {}, checked_value = 1, unchecked_value = 0
       if options[:vanilla]
-        return super *args
+        return super
       end
 
-      options = args.extract_options!
-      if options.has_key? :class
-        unless options[:class].kind_of? Array
-          options[:class] = [options[:class]]
-        end
-      else
-        options[:class] = []
-      end
-
-      options[:class].push :checkbox
+      guarantee_html_class options, :checkbox
       options[:class].push 'inline' if @form_mode == :inline
 
       text = options[:label] || ''
       options.delete :label
 
-      args = args.push options
-
-      field_label(name, *args) do
-        super(name, *args) + text
+      field_label(method, options) do
+        super(method,options,checked_value,unchecked_value)  + text
       end
     end
 
     def date_select method, options = {}, html_options = {}
-      field = super(method, options, html_options)
+      field = super
 
       return field if options[:vanilla]
 
-      #TODO extract this code into a method. For now: lazy.
-      errors = object.errors[method].any? ? 'error' : ''
-      error_msg = object.errors[method].any? ? content_tag(:span, object.errors[method].join(","), class: 'help-inline') : ''
+      errors, error_msg = render_errors method
 
-      help_text =  options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
+      #hmm, apparently TODO
+      help_text options
 
       label = options[:label] == false ? ''.html_safe : field_label(method, options.except(:class))
 
-      html_options[:class] = [html_options[:class]] unless html_options[:class].kind_of?(Array)
-      html_options[:class].push 'inline'
+      guarantee_html_class html_options, 'inline'
 
       field += ' '.html_safe + error_msg
       field = div_with_class(['controls',errors], :content => field) if @form_mode == :horizontal
@@ -189,6 +174,20 @@ module BootstrapsBootstraps
       end
     end
 
+    def guarantee_html_class options_hash, *new_classes
+      if options_hash[:class].nil?
+        options_hash[:class] = []
+      elsif options_hash[:class].kind_of?(Symbol)|| options_hash[:class].kind_of?(String)
+        options_hash[:class] =  [ options_hash[:class] ]
+      end
+
+      unless new_classes.nil?
+        options_hash[:class].push new_classes
+      end
+
+      options_hash
+    end
+
     def div_with_class clss, options = {}, &block
       options[:class] = [options[:class]] || []
       options[:class].push clss
@@ -207,6 +206,19 @@ module BootstrapsBootstraps
       end
     end
 
+    def render_errors method
+      if object.nil?
+        return ['','']
+      end
 
+      errors = object.errors[method].any? ? 'error' : ''
+      error_msg = object.errors[method].any? ? content_tag(:span, object.errors[method].join(","), class: 'help-inline') : ''
+
+      [errors, error_msg]
+    end
+
+    def help_text options
+      options[:help_text].blank? ? '' : content_tag(:span,options[:help_text], class: 'help-block')
+    end
   end
 end
