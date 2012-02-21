@@ -36,7 +36,9 @@ module BootstrapsBootstraps
       @form_mode = :inline     if options[:inline]     || detect_html_class(options, 'form-inline')
     end
 
-    %w[text_field text_area password_field number_field telephone_field url_field email_field range_field collection_select file_field].each do |method_name|
+
+    #the main method constructor which takes care of most of the use cases
+    %w[text_field text_area password_field number_field telephone_field url_field email_field range_field file_field].each do |method_name|
       define_method(method_name) do |name, *args|
         options = args.extract_options!
 
@@ -47,13 +49,15 @@ module BootstrapsBootstraps
 
         errors, error_msg = render_errors name
 
-
-        label = options[:label] == false ? ''.html_safe : field_label(name, options.except(:class))
+        label_options = options
+        label_options[:class] = options[:label_class] unless options[:label_class].nil?
+        label = options[:label] == false ? ''.html_safe : field_label(name, label_options)
 
         guarantee_html_class options
         options[:class].push 'input-xlarge' if options[:large] || method_name == 'text_area'
         options[:class].push 'inline' if @form_mode == :inline
 
+        options.delete :label
         args.push(options).unshift(name)
 
         field = super(*args) + ' ' + error_msg
@@ -87,16 +91,34 @@ module BootstrapsBootstraps
       end
     end
 
-    def radio_button method, value, options
-      guarantee_html_class options, 'radio'
-      error_class, error_message = render_errors method
+    def collection_select method, collection, value_method, text_method, options = {}, html_options = {}
+      #abort and just let the rails formbuilder do its thing
+      if options[:vanilla]
+        return super
+      end
 
-      text = options[:label] || ''
+      errors, error_msg = render_errors method
+
+      label = options[:label] == false ? ''.html_safe : field_label(method, html_options)
+
+      guarantee_html_class options
+      options[:class].push 'input-xlarge' if options[:large]
+      options[:class].push 'inline' if @form_mode == :inline
+
       options.delete :label
 
-      content_tag(:label, class: options[:class]) do
-        super(method,value,options) + text
-      end
+      field = super(method,collection,value_method,text_method,options,html_options) + ' ' + error_msg
+
+      #wrap it in div.controls
+      field = div_with_class(['controls',errors], :content => field) if @form_mode == :horizontal
+
+      #tack on the label
+      field = label + field unless @form_mode == :inline
+
+      #wrap it in div.control-group
+      field = div_with_class(['control-group',errors], :content => field) if @form_mode == :horizontal
+
+      field
     end
 
     def date_select method, options = {}, html_options = {}
@@ -120,6 +142,18 @@ module BootstrapsBootstraps
       field
     end
 
+    def radio_button method, value, options
+      guarantee_html_class options, 'radio'
+      error_class, error_message = render_errors method
+
+      text = options[:label] || ''
+      options.delete :label
+
+      content_tag(:label, class: options[:class]) do
+        super(method,value,options) + text
+      end
+    end
+
     def submit *args
       options = args.extract_options!
       args = args.push options
@@ -133,6 +167,8 @@ module BootstrapsBootstraps
       end
     end
 
+
+    #input groups
     def inline_inputs field_options = {}, &block
       field_options[:inline] = true
       wrapper = lambda { |content|
@@ -159,11 +195,9 @@ module BootstrapsBootstraps
 
     def field_label(name, *args, &block)
       options = args.extract_options!
-      clss = options[:class] || []
-
-      required = object.class.validators_on(name).any? { |v| v.kind_of? ActiveModel::Validations::PresenceValidator}
-      clss.push 'required' if required
-
+      guarantee_html_class options
+      clss = options[:class]
+      clss.push 'required' if object.class.validators_on(name).any? { |v| v.kind_of? ActiveModel::Validations::PresenceValidator}
 
       label(name, options[:label], class: clss, &block)
     end
@@ -193,8 +227,10 @@ module BootstrapsBootstraps
         options_hash[:class] =  [ options_hash[:class] ]
       end
 
-      unless new_classes.nil?
-        options_hash[:class].push new_classes
+      unless new_classes.empty?
+        new_classes.each do |clss|
+          options_hash[:class].push clss
+        end
       end
 
       options_hash
