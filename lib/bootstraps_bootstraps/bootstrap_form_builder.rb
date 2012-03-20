@@ -34,6 +34,8 @@ module BootstrapsBootstraps
       @form_mode = :horizontal if options[:horizontal] || detect_html_class(options, 'form-horizontal')
       @form_mode = :search     if options[:search]     || detect_html_class(options, 'form-search')
       @form_mode = :inline     if options[:inline]     || detect_html_class(options, 'form-inline')
+
+      @action_wrapped = options[:action_wrapped]
     end
 
 
@@ -142,7 +144,7 @@ module BootstrapsBootstraps
       field
     end
 
-    def radio_button method, value, options
+    def radio_button method, value, options = {}
       guarantee_html_class options, 'radio'
       error_class, error_message = render_errors method
 
@@ -154,17 +156,13 @@ module BootstrapsBootstraps
       end
     end
 
-    def submit *args
-      options = args.extract_options!
-      args = args.push options
-
-      if options[:vanilla]
-        super *args
-      else
-        content_tag :div, class: 'form-actions' do
-          super *args
-        end
-      end
+    def submit method, options = {}
+      # options block gets stringify_keys called on it in the first super, no :keys exist after that
+      field = super
+      return field if options['vanilla']
+      field = div_with_class('form-actions', content: field) unless options['no_action_block'] || @action_wrapped || [:inline, :search].include?(@form_mode)
+      puts @action_wrapped
+      field
     end
 
 
@@ -189,6 +187,15 @@ module BootstrapsBootstraps
       end
 
       @template.wrapped_inputs(@object_name, @object, @options, wrapper, &block)
+    end
+
+    def form_actions field_options = {}, &block
+      field_options[:action_wrapped] = true
+      wrapper = lambda { |content|
+        field_group = div_with_class('form-actions', content: content)
+      }
+
+      @template.wrapped_inputs(@object_name, @object, @options.merge(field_options), wrapper, &block)
     end
 
   private
