@@ -51,8 +51,9 @@ module BootstrapsBootstraps
 
         errors, error_msg = render_errors name
 
-        label_options = options
+        label_options = options.clone
         label_options[:class] = options[:label_class] unless options[:label_class].nil?
+        guarantee_html_class label_options, 'control-label'
         label = options[:label] == false ? ''.html_safe : field_label(name, label_options)
 
         guarantee_html_class options
@@ -101,7 +102,10 @@ module BootstrapsBootstraps
 
       errors, error_msg = render_errors method
 
-      label = options[:label] == false ? ''.html_safe : field_label(method, html_options)
+      label_options = html_options.clone
+      guarantee_html_class label_options, 'control-label'
+      name = options[:label] || method
+      label = options[:label] == false ? ''.html_safe : field_label(options[:label], label_options)
 
       guarantee_html_class options
       options[:class].push 'input-xlarge' if options[:large]
@@ -133,7 +137,10 @@ module BootstrapsBootstraps
       #hmm, apparently TODO
       help_text options
 
-      label = options[:label] == false ? ''.html_safe : field_label(method, options.except(:class))
+      label_options = html_options.clone
+      label_options[:class] = ['control-label']
+      #guarantee_html_class label_options, 'control-label'
+      label = options[:label] == false ? ''.html_safe : field_label(method, label_options)
 
       guarantee_html_class html_options, 'inline'
 
@@ -200,8 +207,7 @@ module BootstrapsBootstraps
 
   private
 
-    def field_label(name, *args, &block)
-      options = args.extract_options!
+    def field_label(name, options = {}, &block)
       guarantee_html_class options
       clss = options[:class]
       clss.push 'required' if object.class.validators_on(name).any? { |v| v.kind_of? ActiveModel::Validations::PresenceValidator}
