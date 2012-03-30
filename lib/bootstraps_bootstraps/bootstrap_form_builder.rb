@@ -102,10 +102,9 @@ module BootstrapsBootstraps
 
       errors, error_msg = render_errors method
 
-      label_options = html_options.clone
+      label_options = options.clone
       guarantee_html_class label_options, 'control-label'
-      name = options[:label] || method
-      label = options[:label] == false ? ''.html_safe : field_label(options[:label], label_options)
+      label = options[:label] == false ? ''.html_safe : field_label(method, label_options)
 
       guarantee_html_class options
       options[:class].push 'input-xlarge' if options[:large]
@@ -168,7 +167,6 @@ module BootstrapsBootstraps
       field = super
       return field if options['vanilla']
       field = div_with_class('form-actions', content: field) unless options['no_action_block'] || @action_wrapped || [:inline, :search].include?(@form_mode)
-      puts @action_wrapped
       field
     end
 
