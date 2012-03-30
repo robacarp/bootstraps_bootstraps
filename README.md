@@ -12,15 +12,15 @@ Development of this gem more or less follows [Bootstrap-sass](https://github.com
 
 An extended form_for called `bootstrap_form` with all the classic functionality yet extended to provide correct Bootstrap 2 syntax for horizontal forms (classed with .form_horizontal) for most elements.
 
+##Impetus
+
+Many form builders already exist which enable bootstrap style syntax. My biggest reason for not using any of them is that I just want to write simple rails view code in my view. I don't want to define in my model what type of form field a column needs to be represented by, because it might be represented by many interaction types. I also don't want to have to deal with syntax config files to get the form builder to render bootstrap compatible syntax.  Above all, when I don't want the markup to be mucked with *at all*, I want to be able to just render the form as rails always does.  Bootstraps_bootstraps provides this functionality by simply providing a secondary FormBuilder and a shortcut method to build forms with that builder.
+
 ##Development Strategy
 
 This isn't compatible with Bootstrap versions < 2.
 
 More or less I'm writing this library as needed.  Each time I find myself trying to do something with form_for or interact between Rails and Bootstrap I find a way to make them play nice together without losing baseline Rails functionality.
-
-Things that I know aren't in the library yet:
-
- - Collection methods (select box, check boxes, radio buttons)
 
 ##Use
 
