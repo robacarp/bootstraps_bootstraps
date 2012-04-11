@@ -162,7 +162,7 @@ module BootstrapsBootstraps
       end
     end
 
-    def submit method, options = {}
+    def submit text = nil, options = {}
       # options block gets stringify_keys called on it in the first super, no :keys exist after that
       field = super
       return field if options['vanilla']
