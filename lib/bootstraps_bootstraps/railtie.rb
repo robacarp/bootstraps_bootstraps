@@ -1,5 +1,3 @@
-require 'ruby-debug'
-
 module BootstrapsBootstraps
   class Railtie < Rails::Railtie
     initializer "bootstraps_bootstraps.configure_rails_initialization" do |application|
