@@ -276,7 +276,7 @@ module BootstrapsBootstraps
       end
 
       errors = object.errors[method].any? ? 'error' : ''
-      error_msg = object.errors[method].any? ? content_tag(:span, object.errors[method].join(","), class: 'help-inline') : ''
+      error_msg = object.errors[method].any? ? content_tag(:span, object.errors[method].join(","), class: @form_mode == :vertical ? 'help-block' : 'help-inline') : ''
 
       [errors, error_msg]
     end
