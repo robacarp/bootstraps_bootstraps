@@ -72,7 +72,7 @@ module BootstrapsBootstraps
         field = label + field unless @form_mode == :inline
 
         #wrap it in div.control-group
-        field = div_with_class(['control-group',errors], :content => field) if @form_mode == :horizontal
+        field = div_with_class(['control-group',errors], :content => field)
 
         field
       end
