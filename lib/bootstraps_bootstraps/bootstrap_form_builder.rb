@@ -89,8 +89,13 @@ module BootstrapsBootstraps
       text = options[:label] || ''
       options.delete :label
 
-      field_label(method, options) do
-        super(method,options,checked_value,unchecked_value)  + text
+      #TODO provide support for grouped checkboxes
+      div_with_class 'control-group' do
+        div_with_class 'controls' do
+          field_label(method, options) do
+            super(method,options,checked_value,unchecked_value)  + text
+          end
+        end
       end
     end
 
